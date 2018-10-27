@@ -379,6 +379,9 @@ then
 	*-*-cygwin*)
 		ac_sys_system=Cygwin
 		;;
+	*-*-mingw*)
+		ac_sys_system=MinGW
+		;;
 	*)
 		# for now, limit cross builds to known configurations
 		MACHDEP="unknown"
@@ -403,6 +406,7 @@ then
     case $MACHDEP in
 	linux*) MACHDEP="linux";;
 	cygwin*) MACHDEP="cygwin";;
+	mingw*) MACHDEP="mingw";;
 	darwin*) MACHDEP="darwin";;
 	'')	MACHDEP="unknown";;
     esac
@@ -421,6 +425,9 @@ if test "$cross_compiling" = yes; then
 		esac
 		;;
 	*-*-cygwin*)
+		_host_cpu=
+		;;
+	*-*-mingw*)
 		_host_cpu=
 		;;
 	*)
@@ -5249,17 +5256,6 @@ if test "$ac_cv_have_size_t_format" != no ; then
   [Define to printf format modifier for Py_ssize_t])
 fi
 
-AC_CHECK_TYPE(socklen_t,,
-  AC_DEFINE(socklen_t,int,
-            [Define to `int' if <sys/socket.h> does not define.]),[
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-])
-
 AC_MSG_CHECKING(for broken mbstowcs)
 AC_CACHE_VAL(ac_cv_broken_mbstowcs,
 AC_RUN_IFELSE([AC_LANG_SOURCE([[
@@ -5345,7 +5341,7 @@ do
 done
 
 AC_SUBST(SRCDIRS)
-SRCDIRS="Parser Objects Python Modules Programs"
+SRCDIRS="Parser Objects Python Modules Programs PC"
 AC_MSG_CHECKING(for build directories)
 for dir in $SRCDIRS; do
     if test ! -d $dir; then

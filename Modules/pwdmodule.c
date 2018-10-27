@@ -3,7 +3,7 @@
 
 #include "Python.h"
 #include "posixmodule.h"
-
+#ifndef MS_WINDOWS
 #include <pwd.h>
 
 #include "clinic/pwdmodule.c.h"
@@ -245,3 +245,4 @@ PyInit_pwd(void)
     PyModule_AddObject(m, "struct_passwd", (PyObject *) &StructPwdType);
     return m;
 }
+#endif

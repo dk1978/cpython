@@ -17,6 +17,9 @@
 #include <process.h>
 #endif
 #endif
+#if defined(__MINGW32__)
+#undef HAVE_ALARM 
+#endif
 
 #ifdef HAVE_SIGNAL_H
 #include <signal.h>

@@ -34,8 +34,6 @@
 #  define HAVE_GETADDRINFO
 #  define HAVE_GETNAMEINFO
 #  define ENABLE_IPV6
-# else
-typedef int socklen_t;
 # endif /* IPPROTO_IPV6 */
 #endif /* MS_WINDOWS */
 

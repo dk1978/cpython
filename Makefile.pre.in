@@ -263,9 +263,14 @@ COVERAGE_REPORT_OPTIONS=--no-branch-coverage --title "CPython lcov report"
 # Modules
 MODULE_OBJS=	\
 		Modules/config.o \
-		Modules/getpath.o \
 		Modules/main.o \
-		Modules/gcmodule.o
+		Modules/gcmodule.o \
+		PC/invalid_parameter_handler.o \
+		PC/winreg.o \
+		PC/config.o \
+		PC/getpathp.o \
+		PC/msvcrtmodule.o
+#		Modules/getpath.o \
 
 IO_H=		Modules/_io/_iomodule.h
 
@@ -276,7 +281,8 @@ IO_OBJS=	\
 		Modules/_io/bufferedio.o \
 		Modules/_io/textio.o \
 		Modules/_io/bytesio.o \
-		Modules/_io/stringio.o
+		Modules/_io/stringio.o \
+		Modules/_io/winconsoleio.o
 
 ##########################################################################
 
@@ -755,13 +761,20 @@ Modules/getbuildinfo.o: $(PARSER_OBJS) \
 	      -DGITBRANCH="\"`LC_ALL=C $(GITBRANCH)`\"" \
 	      -o $@ $(srcdir)/Modules/getbuildinfo.c
 
-Modules/getpath.o: $(srcdir)/Modules/getpath.c Makefile
+#Modules/getpath.o: $(srcdir)/Modules/getpath.c Makefile
+#	$(CC) -c $(PY_CORE_CFLAGS) -DPYTHONPATH='"$(PYTHONPATH)"' \
+#		-DPREFIX='"$(prefix)"' \
+#		-DEXEC_PREFIX='"$(exec_prefix)"' \
+#		-DVERSION='"$(VERSION)"' \
+#		-DVPATH='"$(VPATH)"' \
+#		-o $@ $(srcdir)/Modules/getpath.c
+PC/getpathp.o: $(srcdir)/PC/getpathp.c Makefile
 	$(CC) -c $(PY_CORE_CFLAGS) -DPYTHONPATH='"$(PYTHONPATH)"' \
 		-DPREFIX='"$(prefix)"' \
 		-DEXEC_PREFIX='"$(exec_prefix)"' \
 		-DVERSION='"$(VERSION)"' \
 		-DVPATH='"$(VPATH)"' \
-		-o $@ $(srcdir)/Modules/getpath.c
+		-o $@ $(srcdir)/PC/getpathp.c
 
 Programs/python.o: $(srcdir)/Programs/python.c
 	$(MAINCC) -c $(PY_CORE_CFLAGS) -o $@ $(srcdir)/Programs/python.c

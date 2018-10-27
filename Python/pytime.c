@@ -1,6 +1,9 @@
 #include "Python.h"
 #ifdef MS_WINDOWS
 #include <windows.h>
+#ifdef __MINGW32__
+#include <sysinfoapi.h>
+#endif
 #endif
 
 #if defined(__APPLE__)

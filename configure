@@ -783,6 +783,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -894,6 +895,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
@@ -1146,6 +1148,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1283,7 +1294,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1436,6 +1447,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -3255,6 +3267,9 @@ then
 	*-*-cygwin*)
 		ac_sys_system=Cygwin
 		;;
+	*-*-mingw*)
+		ac_sys_system=MinGW
+		;;
 	*)
 		# for now, limit cross builds to known configurations
 		MACHDEP="unknown"
@@ -3279,6 +3294,7 @@ then
     case $MACHDEP in
 	linux*) MACHDEP="linux";;
 	cygwin*) MACHDEP="cygwin";;
+	mingw*) MACHDEP="mingw";;
 	darwin*) MACHDEP="darwin";;
 	'')	MACHDEP="unknown";;
     esac
@@ -3297,6 +3313,9 @@ if test "$cross_compiling" = yes; then
 		esac
 		;;
 	*-*-cygwin*)
+		_host_cpu=
+		;;
+	*-*-mingw*)
 		_host_cpu=
 		;;
 	*)
@@ -16385,24 +16404,6 @@ $as_echo "#define PY_FORMAT_SIZE_T \"z\"" >>confdefs.h
 
 fi
 
-ac_fn_c_check_type "$LINENO" "socklen_t" "ac_cv_type_socklen_t" "
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-"
-if test "x$ac_cv_type_socklen_t" = xyes; then :
-
-else
-
-$as_echo "#define socklen_t int" >>confdefs.h
-
-fi
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for broken mbstowcs" >&5
 $as_echo_n "checking for broken mbstowcs... " >&6; }
 if ${ac_cv_broken_mbstowcs+:} false; then :
@@ -16536,7 +16537,7 @@ do
 done
 
 
-SRCDIRS="Parser Objects Python Modules Programs"
+SRCDIRS="Parser Objects Python Modules Modules/_io Programs PC"
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for build directories" >&5
 $as_echo_n "checking for build directories... " >&6; }
 for dir in $SRCDIRS; do

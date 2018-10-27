@@ -4,7 +4,9 @@
 #include "osdefs.h"
 #include "internal/pystate.h"
 #include <wchar.h>
-
+#ifdef MS_WINDOWS
+#include <windows.h>
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -397,11 +399,11 @@ _Py_FindEnvConfigValue(FILE *env_file, const wchar_t *key,
         wchar_t *tmpbuffer = _Py_DecodeUTF8_surrogateescape(buffer, n);
         if (tmpbuffer) {
             wchar_t * state;
-            wchar_t * tok = wcstok(tmpbuffer, L" \t\r\n", &state);
+            wchar_t * tok = WCSTOK(tmpbuffer, L" \t\r\n", &state);
             if ((tok != NULL) && !wcscmp(tok, key)) {
-                tok = wcstok(NULL, L" \t", &state);
+                tok = WCSTOK(NULL, L" \t", &state);
                 if ((tok != NULL) && !wcscmp(tok, L"=")) {
-                    tok = wcstok(NULL, L"\r\n", &state);
+                    tok = WCSTOK(NULL, L"\r\n", &state);
                     if (tok != NULL) {
                         wcsncpy(value, tok, MAXPATHLEN);
                         result = 1;

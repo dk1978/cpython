@@ -56,12 +56,6 @@ extern "C" {
         } \
     } while (0)
 
-#ifdef MS_WINDOWS
-#define WCSTOK wcstok_s
-#else
-#define WCSTOK wcstok
-#endif
-
 /* For Py_GetArgcArgv(); set by main() */
 static wchar_t **orig_argv = NULL;
 static int orig_argc = 0;

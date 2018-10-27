@@ -763,7 +763,11 @@ MiddlingExtendsException(PyExc_ImportError, ModuleNotFoundError, ImportError,
  */
 
 #ifdef MS_WINDOWS
-#include "errmap.h"
+#  if defined(__MINGW32__)
+#    include "../PC/errmap.h"
+#  else
+#    include "errmap.h"
+#  endif
 #endif
 
 /* Where a function has a single filename, such as open() or some
