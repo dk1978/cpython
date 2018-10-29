@@ -78,7 +78,6 @@
 
    ---------------------------------------------------------------- */
 
-
 #include "Python.h"
 #include "internal/pystate.h"
 #include "osdefs.h"
@@ -88,7 +87,6 @@
 #error getpathp.c should only be built on Windows
 #endif
 
-#include <windows.h>
 #include <shlwapi.h>
 
 #ifdef HAVE_SYS_TYPES_H

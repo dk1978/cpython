@@ -611,7 +611,12 @@ extern char * _getpty(int *, int, mode_t, int);
 /* MinGW w64 port */
 #if defined(__MINGW32__)
 #       define MS_WINDOWS
+#  if defined(_WIN64)
 #       define MS_WIN64
+#  endif
+#  if defined(_WIN32)
+#       define MS_WIN32
+#  endif
 #endif
 
 #ifdef MS_WINDOWS
@@ -631,16 +636,16 @@ extern char * _getpty(int *, int, mode_t, int);
 #endif
 
 /* only get special linkage if built as shared or platform is Cygwin */
-#if defined(Py_ENABLE_SHARED) || defined(__CYGWIN__) || defined(__MINGW32__)
+#if defined(Py_ENABLE_SHARED) && (defined(__CYGWIN__) || defined(__MINGW32__))
 #       if defined(HAVE_DECLSPEC_DLL)
 #               if defined(Py_BUILD_CORE) || defined(Py_BUILD_CORE_BUILTIN)
 #                       define PyAPI_FUNC(RTYPE) __declspec(dllexport) RTYPE
 #                       define PyAPI_DATA(RTYPE) extern __declspec(dllexport) RTYPE
         /* module init functions inside the core need no external linkage */
         /* except for Cygwin to handle embedding */
-#                       if defined(__CYGWIN__) || defined(__MINGW32__)
+#                       if defined(__CYGWIN__)
 #                               define PyMODINIT_FUNC __declspec(dllexport) PyObject*
-#                       else /* __CYGWIN__ */
+#                       else
 #                               define PyMODINIT_FUNC PyObject*
 #                       endif /* __CYGWIN__ */
 #               else /* Py_BUILD_CORE */
@@ -649,7 +654,7 @@ extern char * _getpty(int *, int, mode_t, int);
         /* Under Cygwin, auto-import functions to prevent compilation */
         /* failures similar to those described at the bottom of 4.1: */
         /* http://docs.python.org/extending/windows.html#a-cookbook-approach */
-#                       if !defined(__CYGWIN__) && !defined(__MINGW32__)
+#                       if !defined(__CYGWIN__)
 #                               define PyAPI_FUNC(RTYPE) __declspec(dllimport) RTYPE
 #                       endif /* !__CYGWIN__ */
 #                       define PyAPI_DATA(RTYPE) extern __declspec(dllimport) RTYPE

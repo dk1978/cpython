@@ -30,11 +30,26 @@ extern PyObject* PyInit_gc(void);
 extern PyObject* PyInit__ast(void);
 extern PyObject* _PyWarnings_Init(void);
 extern PyObject* PyInit__string(void);
+/* This module uses a different name depending on whether we are working on Windows or not.
+This is not handled correctly make the makesetup stuff. */
+#if defined(MS_WINDOWS)
+extern PyObject* PyInit_nt(void);
+#else
+extern PyObject* PyInit_posix(void);
+#endif
 
 struct _inittab _PyImport_Inittab[] = {
 
 /* -- ADDMODULE MARKER 2 -- */
 
+    /* This module uses a different name depending on whether we are working on Windows or not.
+     This is not handled correctly make the makesetup stuff. */
+#if defined(MS_WINDOWS)
+    {"nt", PyInit_nt},
+#else
+    {"posix", PyInit_posix},
+#endif
+  
     /* This module lives in marshal.c */
     {"marshal", PyMarshal_Init},
 
