@@ -21,6 +21,14 @@ redistribution of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 extern "C" {
 #endif
 
+#if defined(__MINGW32__)
+extern PyObject* PyInit_winreg(void);
+extern PyObject* PyInit_nt(void);
+#else
+extern PyObject* PyInit_pwd(void);
+extern PyObject* PyInit_posix(void);
+#endif
+
 
 /* -- ADDMODULE MARKER 1 -- */
 
@@ -30,26 +38,18 @@ extern PyObject* PyInit_gc(void);
 extern PyObject* PyInit__ast(void);
 extern PyObject* _PyWarnings_Init(void);
 extern PyObject* PyInit__string(void);
-/* This module uses a different name depending on whether we are working on Windows or not.
-This is not handled correctly make the makesetup stuff. */
-#if defined(MS_WINDOWS)
-extern PyObject* PyInit_nt(void);
-#else
-extern PyObject* PyInit_posix(void);
-#endif
-
 struct _inittab _PyImport_Inittab[] = {
 
 /* -- ADDMODULE MARKER 2 -- */
 
-    /* This module uses a different name depending on whether we are working on Windows or not.
-     This is not handled correctly make the makesetup stuff. */
-#if defined(MS_WINDOWS)
+#if defined(__MINGW32__)
     {"nt", PyInit_nt},
+    {"winreg", PyInit_winreg},
 #else
     {"posix", PyInit_posix},
+    {"pwd", PyInit_pwd},
 #endif
-  
+
     /* This module lives in marshal.c */
     {"marshal", PyMarshal_Init},
 

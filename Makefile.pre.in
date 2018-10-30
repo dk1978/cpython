@@ -261,13 +261,17 @@ COVERAGE_REPORT_OPTIONS=--no-branch-coverage --title "CPython lcov report"
 ##########################################################################
 # Platform-dependent objects
 ifeq ($(MACHDEP),mingw)
-  MACHDEP_OBJS += PC/getpathp.o PC/invalid_parameter_handler.o PC/winreg.o PC/dl_nt.o
-  MODULE_OBJS   = Modules/winconsoleio.o Modules/posixmodule.o
+  MACHDEP_OBJS += PC/getpathp.o \
+	          PC/invalid_parameter_handler.o \
+                  PC/winreg.o \
+                  PC/dl_nt.o
   SYSLIBS      += -lversion -lshlwapi -lwsock32
+  MODULE_OBJS = Modules/winconsoleio.o
 else
   MACHDEP_OBJS += Modules/getpath.o
-  MODULE_OBJS   = Modules/posixmodule.o Modules/pwdmodule.o
+  MODULE_OBJS = Modules/pwdmodule.o
 endif
+MODULE_OBJS += Modules/posixmodule.o
 
 ##########################################################################
 # Modules
@@ -684,7 +688,7 @@ $(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK): \
 # for a shared core library; otherwise, this rule is a noop.
 $(DLLLIBRARY) libpython$(LDVERSION).dll.a: $(LIBRARY_OBJS)
 	if test -n "$(DLLLIBRARY)"; then \
-		$(LDSHARED) -Wl,--out-implib=$@ -o $(DLLLIBRARY) $^ \
+		$(LDSHARED) -Wl,--out-implib=libpython$(LDVERSION).dll.a -o $(DLLLIBRARY) $^ \
 			$(LIBS) $(MODLIBS) $(SYSLIBS) $(LDLAST); \
 	else true; \
 	fi
@@ -797,12 +801,19 @@ Programs/_testembed.o: $(srcdir)/Programs/_testembed.c
 Modules/_sre.o: $(srcdir)/Modules/_sre.c $(srcdir)/Modules/sre.h $(srcdir)/Modules/sre_constants.h $(srcdir)/Modules/sre_lib.h
 
 Modules/posixmodule.o: $(srcdir)/Modules/posixmodule.c $(srcdir)/Modules/posixmodule.h
-Modules/posixmodule.o: $(srcdir)/Modules/posixmodule.c; $(CC) $(PY_STDMODULE_CFLAGS)  -DPy_BUILD_CORE -c $(srcdir)/Modules/posixmodule.c -o Modules/posixmodule.o
-Modules/posix$(EXT_SUFFIX):  Modules/posixmodule.o; $(BLDSHARED)  Modules/posixmodule.o   -o Modules/posix$(EXT_SUFFIX)
+	 $(CC) $(PY_STDMODULE_CFLAGS) \
+                -DPy_BUILD_CORE \
+                -c $(srcdir)/Modules/posixmodule.c \
+                -o Modules/posixmodule.o
 
 Modules/grpmodule.o: $(srcdir)/Modules/grpmodule.c $(srcdir)/Modules/posixmodule.h
 
 Modules/pwdmodule.o: $(srcdir)/Modules/pwdmodule.c $(srcdir)/Modules/posixmodule.h
+	 $(CC) $(PY_STDMODULE_CFLAGS) \
+                -c $(srcdir)/Modules/pwdmodule.c \
+                -o Modules/pwdmodule.o
+
+Modules/itertools$(EXT_SUFFIX):  Modules/itertoolsmodule.o; $(BLDSHARED)  Modules/itertoolsmodule.o   $(EXTRA_MODULE_LIBS) -o Modules/itertools$(EXT_SUFFIX)
 
 Modules/signalmodule.o: $(srcdir)/Modules/signalmodule.c $(srcdir)/Modules/posixmodule.h
 

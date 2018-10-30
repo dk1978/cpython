@@ -64,7 +64,7 @@ AC_SUBST(PYTHON_FOR_REGEN)
 if test "$cross_compiling" = yes; then
     AC_MSG_CHECKING([for python interpreter for cross build])
     if test -z "$PYTHON_FOR_BUILD"; then
-        for interp in python$PACKAGE_VERSION python3 python; do
+        for interp in python$PACKAGE_VERSION python3 python $CROSSCOMPILING_PYTHON_FOR_BUILD; do
 	    which $interp >/dev/null 2>&1 || continue
 	    if $interp -c "import sys;sys.exit(not '.'.join(str(n) for n in sys.version_info@<:@:2@:>@) == '$PACKAGE_VERSION')"; then
 	        break
@@ -424,10 +424,7 @@ if test "$cross_compiling" = yes; then
 			_host_cpu=$host_cpu
 		esac
 		;;
-	*-*-cygwin*)
-		_host_cpu=
-		;;
-	*-*-mingw*)
+	*-*-cygwin*|*-*-mingw*)
 		_host_cpu=
 		;;
 	*)
@@ -1134,7 +1131,7 @@ if test $enable_shared = "yes"; then
   PY_ENABLE_SHARED=1
   AC_DEFINE(Py_ENABLE_SHARED, 1, [Defined if Python is built as a shared library.])
   case $ac_sys_system in
-    CYGWIN*)
+    CYGWIN*|MinGW*)
           LDLIBRARY='libpython$(LDVERSION).dll.a'
           DLLLIBRARY='libpython$(LDVERSION).dll'
           ;;
@@ -1184,7 +1181,7 @@ if test $enable_shared = "yes"; then
 else # shared is disabled
   PY_ENABLE_SHARED=0
   case $ac_sys_system in
-    CYGWIN*)
+    CYGWIN|MinGW*)
           BLDLIBRARY='$(LIBRARY)'
           LDLIBRARY='libpython$(LDVERSION).dll.a'
           ;;
@@ -2524,7 +2521,7 @@ if test -z "$SHLIB_SUFFIX"; then
 	  		*)    SHLIB_SUFFIX=.sl;;
 		esac
 		;;
-	CYGWIN*)   SHLIB_SUFFIX=.dll;;
+	CYGWIN*|MinGW*)    SHLIB_SUFFIX=.dll;;
 	*)	   SHLIB_SUFFIX=.so;;
 	esac
 fi
@@ -2661,6 +2658,9 @@ then
 	CYGWIN*)
 		LDSHARED="gcc -shared -Wl,--enable-auto-image-base"
 		LDCXXSHARED="g++ -shared -Wl,--enable-auto-image-base";;
+	MinGW*)
+		LDSHARED='$(CC) -shared'
+		LDCXXSHARED='$(CXX) -shared';;
 	*)	LDSHARED="ld";;
 	esac
 fi
@@ -2740,7 +2740,7 @@ then
 			LINKFORSHARED="-Xlinker --export-dynamic"
 		    fi;;
 		  esac;;
-	CYGWIN*)
+	CYGWIN*|MinGW*)
 		if test $enable_shared = "no"
 		then
 			LINKFORSHARED='-Wl,--out-implib=$(LDLIBRARY)'
@@ -2762,7 +2762,7 @@ AC_MSG_CHECKING(CFLAGSFORSHARED)
 if test ! "$LIBRARY" = "$LDLIBRARY"
 then
 	case $ac_sys_system in
-	CYGWIN*)
+	CYGWIN*|MinGW)
 		# Cygwin needs CCSHARED when building extension DLLs
 		# but not when building the interpreter DLL.
 		CFLAGSFORSHARED='';;
@@ -4706,6 +4706,8 @@ AC_SUBST(EXT_SUFFIX)
 case $ac_sys_system in
     Linux*|GNU*|Darwin)
 	EXT_SUFFIX=.${SOABI}${SHLIB_SUFFIX};;
+    MinGW*)
+        EXT_SUFFIX=.pyd;;
     *)
 	EXT_SUFFIX=${SHLIB_SUFFIX};;
 esac
@@ -5643,7 +5645,7 @@ AC_OUTPUT
 echo "creating Modules/Setup" >&AS_MESSAGE_FD
 if test ! -f Modules/Setup
 then
-	cp $srcdir/Modules/Setup.dist Modules/Setup
+  cp $srcdir/Modules/Setup.dist Modules/Setup 
 fi
 
 echo "creating Modules/Setup.local" >&AS_MESSAGE_FD
