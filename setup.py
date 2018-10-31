@@ -1932,6 +1932,7 @@ class PyBuildExt(build_ext):
         include_dirs = []
         extra_compile_args = []
         extra_link_args = []
+        extra_libraries = []
         sources = ['_ctypes/_ctypes.c',
                    '_ctypes/callbacks.c',
                    '_ctypes/callproc.c',
@@ -1961,17 +1962,23 @@ class PyBuildExt(build_ext):
         elif host_platform.startswith('hp-ux'):
             extra_link_args.append('-fPIC')
 
+        # function my_sqrt() needs libm for sqrt()
+        extra_libraries.append('m')
+        # MinGW build requires ole libraries
+        if host_platform == 'mingw':
+            extra_libraries.extend(['ole32', 'oleaut32'])
+
         ext = Extension('_ctypes',
                         include_dirs=include_dirs,
                         extra_compile_args=extra_compile_args,
                         extra_link_args=extra_link_args,
-                        libraries=[],
+                        libraries=extra_libraries,
                         sources=sources,
                         depends=depends)
-        # function my_sqrt() needs libm for sqrt()
+
         ext_test = Extension('_ctypes_test',
                      sources=['_ctypes/_ctypes_test.c'],
-                     libraries=['m'])
+                     libraries=extra_libraries)
         self.extensions.extend([ext, ext_test])
 
         if host_platform == 'darwin':
@@ -1991,7 +1998,7 @@ class PyBuildExt(build_ext):
                 print('Header file {} does not exist'.format(ffi_h))
         ffi_lib = None
         if ffi_inc is not None:
-            for lib_name in ('ffi', 'ffi_pic'):
+            for lib_name in ('ffi', 'ffi_pic', 'ffi.dll'):
                 if (self.compiler.find_library_file(lib_dirs, lib_name)):
                     ffi_lib = lib_name
                     break

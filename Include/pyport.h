@@ -628,8 +628,8 @@ extern char * _getpty(int *, int, mode_t, int);
 /*
   All windows ports, except cygwin, are handled in PC/pyconfig.h.
 
-  Cygwin is the only other autoconf platform requiring special
-  linkage handling and it uses __declspec().
+  Cygwin and MinGW are the only other autoconf platform requiring special
+  linkage handling and use __declspec().
 */
 #if defined(__CYGWIN__) || defined(__MINGW32__)
 #       define HAVE_DECLSPEC_DLL
@@ -654,10 +654,12 @@ extern char * _getpty(int *, int, mode_t, int);
         /* Under Cygwin, auto-import functions to prevent compilation */
         /* failures similar to those described at the bottom of 4.1: */
         /* http://docs.python.org/extending/windows.html#a-cookbook-approach */
-#                       if !defined(__CYGWIN__)
+#                       if !defined(__CYGWIN__) && !defined(__MINGW32__)
 #                               define PyAPI_FUNC(RTYPE) __declspec(dllimport) RTYPE
-#                       endif /* !__CYGWIN__ */
-#                       define PyAPI_DATA(RTYPE) extern __declspec(dllimport) RTYPE
+#                       endif /* !__CYGWIN__ && !__MINGW32__ */
+#                       if !defined(__MINGW32__)
+#                         define PyAPI_DATA(RTYPE) extern __declspec(dllimport) RTYPE
+#                       endif
         /* module init functions outside the core must be exported */
 #                       if defined(__cplusplus)
 #                               define PyMODINIT_FUNC extern "C" __declspec(dllexport) PyObject*

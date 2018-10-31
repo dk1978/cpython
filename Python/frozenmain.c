@@ -5,7 +5,10 @@
 #include "internal/pystate.h"
 #include <locale.h>
 
-#ifdef MS_WINDOWS
+/* Cannot figure out how this is supposed to work...
+   python*.*.dll will not link since these symbols
+   are defined outside the library. */
+#if defined(MS_WINDOWS) && !defined(__MINGW32__)
 extern void PyWinFreeze_ExeInit(void);
 extern void PyWinFreeze_ExeTerm(void);
 extern int PyInitFrozenExtensions(void);
@@ -75,13 +78,13 @@ Py_FrozenMain(int argc, char **argv)
     PyMem_RawFree(oldloc);
     oldloc = NULL;
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) && !defined(__MINGW32__)
     PyInitFrozenExtensions();
 #endif /* MS_WINDOWS */
     if (argc >= 1)
         Py_SetProgramName(argv_copy[0]);
     Py_Initialize();
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) && !defined(__MINGW32__)
     PyWinFreeze_ExeInit();
 #endif
 
@@ -104,7 +107,7 @@ Py_FrozenMain(int argc, char **argv)
     if (inspect && isatty((int)fileno(stdin)))
         sts = PyRun_AnyFile(stdin, "<stdin>") != 0;
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) && !defined(__MINGW32__)
     PyWinFreeze_ExeTerm();
 #endif
     if (Py_FinalizeEx() < 0) {
