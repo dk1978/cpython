@@ -141,11 +141,12 @@ corresponding Unix manual entries for more information on calls.");
 /* Everything needed is defined in PC/os2emx/pyconfig.h or vms/pyconfig.h */
 #else                   /* all other compilers */
 /* Unix functions that the configure script doesn't check for */
-#define HAVE_EXECV      1
-#define HAVE_FORK       1
 #if defined(__USLC__) && defined(__SCO_VERSION__)       /* SCO UDK Compiler */
 #define HAVE_FORK1      1
 #endif
+#if !defined(__MINGW32__)
+#define HAVE_EXECV      1
+#define HAVE_FORK       1
 #define HAVE_GETCWD     1
 #define HAVE_GETEGID    1
 #define HAVE_GETEUID    1
@@ -161,6 +162,7 @@ corresponding Unix manual entries for more information on calls.");
 #define HAVE_SYSTEM     1
 #define HAVE_WAIT       1
 #define HAVE_TTYNAME    1
+#endif  /* __MINGW32__ */
 #endif  /* PYOS_OS2 && PYCC_GCC && __VMS */
 #endif  /* _MSC_VER */
 #endif  /* __BORLANDC__ */
@@ -264,7 +266,7 @@ extern int lstat(const char *, struct stat *);
 #endif
 #endif
 
-#ifdef _MSC_VER
+#ifdef MS_WINDOWS
 #ifdef HAVE_DIRECT_H
 #include <direct.h>
 #endif
@@ -280,7 +282,7 @@ extern int lstat(const char *, struct stat *);
 #include <shellapi.h>   /* for ShellExecute() */
 #define popen   _popen
 #define pclose  _pclose
-#endif /* _MSC_VER */
+#endif /* MS_WINDOWS */
 
 #if defined(PYCC_VACPP) && defined(PYOS_OS2)
 #include <io.h>
@@ -9464,7 +9466,7 @@ all_ins(PyObject *d)
 }
 
 
-#if (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__BORLANDC__)) && !defined(__QNX__)
+#if (defined(MS_WINDOWS) || defined(__WATCOMC__) || defined(__BORLANDC__)) && !defined(__QNX__)
 #define INITFUNC initnt
 #define MODNAME "nt"
 

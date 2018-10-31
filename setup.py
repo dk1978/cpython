@@ -2139,7 +2139,7 @@ class PyBuildExt(build_ext):
                           'ffi_wrapper_h'.format(ffi_h))
         ffi_lib = None
         if ffi_inc is not None:
-            for lib_name in ('ffi_convenience', 'ffi_pic', 'ffi'):
+            for lib_name in ('ffi_convenience', 'ffi_pic', 'ffi', 'ffi.dll'):
                 if (self.compiler.find_library_file(lib_dirs, lib_name)):
                     ffi_lib = lib_name
                     break

@@ -21,6 +21,12 @@ redistribution of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 extern "C" {
 #endif
 
+#if defined(__MINGW32__)
+extern PyObject* initnt(void);
+#else
+extern PyObject* initpwd(void);
+extern PyObject* initposix(void);
+#endif
 
 /* -- ADDMODULE MARKER 1 -- */
 
@@ -33,6 +39,13 @@ extern void _PyWarnings_Init(void);
 struct _inittab _PyImport_Inittab[] = {
 
 /* -- ADDMODULE MARKER 2 -- */
+
+#if defined(__MINGW32__)
+    {"nt",  initnt},
+#else
+    {"posix",  initposix},
+    {"pwd",  initpwd},
+#endif
 
     /* This module lives in marshal.c */
     {"marshal", PyMarshal_Init},

@@ -25,7 +25,7 @@ AC_SUBST(PYTHON_FOR_REGEN)
 if test "$cross_compiling" = yes; then
     AC_MSG_CHECKING([for python interpreter for cross build])
     if test -z "$PYTHON_FOR_BUILD"; then
-        for interp in python$PACKAGE_VERSION python2 python; do
+        for interp in python$PACKAGE_VERSION python2 python $CROSSCOMPILING_PYTHON_FOR_BUILD; do
 	    which $interp >/dev/null 2>&1 || continue
 	    if $interp -c 'import sys;sys.exit(not (sys.version_info@<:@:2@:>@ >= (2,7) and sys.version_info@<:@0@:>@ < 3))'; then
 	        break
@@ -340,6 +340,9 @@ then
 	*-*-cygwin*)
 		ac_sys_system=Cygwin
 		;;
+	*-*-mingw*)
+		ac_sys_system=MinGW
+		;;
 	*)
 		# for now, limit cross builds to known configurations
 		MACHDEP="unknown"
@@ -364,6 +367,7 @@ then
     case $MACHDEP in
 	linux*) MACHDEP="linux2";;
 	cygwin*) MACHDEP="cygwin";;
+	mingw*) MACHDEP="mingw";;
 	darwin*) MACHDEP="darwin";;
 	atheos*) MACHDEP="atheos";;
         irix646) MACHDEP="irix6";;
@@ -383,7 +387,7 @@ if test "$cross_compiling" = yes; then
 			_host_cpu=$host_cpu
 		esac
 		;;
-	*-*-cygwin*)
+	*-*-cygwin*|*-*-mingw*)
 		_host_cpu=
 		;;
 	*)
@@ -861,7 +865,7 @@ AC_ARG_ENABLE(shared,
 if test -z "$enable_shared"
 then 
   case $ac_sys_system in
-  CYGWIN* | atheos*)
+  CYGWIN* | MinGW* | atheos*)
     enable_shared="yes";;
   *)
     enable_shared="no";;
@@ -913,7 +917,7 @@ if test $enable_shared = "yes"; then
     BeOS*)
           LDLIBRARY='libpython$(VERSION).so'
           ;;
-    CYGWIN*)
+    CYGWIN*|MinGW*)
           LDLIBRARY='libpython$(VERSION).dll.a'
           DLLLIBRARY='libpython$(VERSION).dll'
           ;;
@@ -969,7 +973,7 @@ if test $enable_shared = "yes"; then
   esac
 else # shared is disabled
   case $ac_sys_system in
-    CYGWIN*)
+    CYGWIN*|MinGW*)
           BLDLIBRARY='$(LIBRARY)'
           LDLIBRARY='libpython$(VERSION).dll.a'
           ;;
@@ -2129,7 +2133,7 @@ then
 	  		*)    SO=.sl;;
 		esac
 		;;
-	CYGWIN*)   SO=.dll;;
+	CYGWIN*|MinGW*)   SO=.dll;;
 	*)	   SO=.so;;
 	esac
 else
@@ -2287,6 +2291,9 @@ then
 	CYGWIN*)
 		LDSHARED="gcc -shared -Wl,--enable-auto-image-base"
 		LDCXXSHARED="g++ -shared -Wl,--enable-auto-image-base";;
+	MinGW*)
+		LDSHARED='$(CC) -shared'
+		LDCXXSHARED='$(CXX) -shared';;
 	atheos*)
 		LDSHARED="gcc -shared"
 		LDCXXSHARED="g++ -shared";;
@@ -2376,7 +2383,7 @@ then
 			LINKFORSHARED="-Xlinker --export-dynamic"
 		    fi;;
 		  esac;;
-	CYGWIN*)
+	CYGWIN*|MinGW*)
 		if test $enable_shared = "no"
 		then
 			LINKFORSHARED='-Wl,--out-implib=$(LDLIBRARY)'
@@ -2398,7 +2405,7 @@ AC_MSG_CHECKING(CFLAGSFORSHARED)
 if test ! "$LIBRARY" = "$LDLIBRARY"
 then
 	case $ac_sys_system in
-	CYGWIN*)
+	CYGWIN*|MinGW*)
 		# Cygwin needs CCSHARED when building extension DLLs
 		# but not when building the interpreter DLL.
 		CFLAGSFORSHARED='';;
@@ -4855,7 +4862,7 @@ do
 done
 
 AC_SUBST(SRCDIRS)
-SRCDIRS="Parser Objects Python Modules"
+SRCDIRS="Parser Objects Python Modules PC"
 AC_MSG_CHECKING(for build directories)
 for dir in $SRCDIRS; do
     if test ! -d $dir; then

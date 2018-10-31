@@ -203,8 +203,10 @@ typedef Py_intptr_t     Py_ssize_t;
 /* Smallest negative value of type Py_ssize_t. */
 #define PY_SSIZE_T_MIN (-PY_SSIZE_T_MAX-1)
 
+#if !defined(__MINGW32__) // posixmodule appears to have magic to make this work regardless...
 #if SIZEOF_PID_T > SIZEOF_LONG
 #   error "Python doesn't support sizeof(pid_t) > sizeof(long)"
+#endif
 #endif
 
 /* PY_FORMAT_SIZE_T is a platform-specific modifier for use in a printf
@@ -754,18 +756,29 @@ extern int fdatasync(int);
   we support a HAVE_DECLSPEC_DLL macro to save duplication.
 */
 
+/* MinGW w64 port */
+#if defined(__MINGW32__)
+#       define MS_WINDOWS
+#  if defined(_WIN64)
+#       define MS_WIN64
+#  endif
+#  if defined(_WIN32)
+#       define MS_WIN32
+#  endif
+#endif
+
 /*
   All windows ports, except cygwin, are handled in PC/pyconfig.h.
 
   BeOS and cygwin are the only other autoconf platform requiring special
   linkage handling and both of these use __declspec().
 */
-#if defined(__CYGWIN__) || defined(__BEOS__)
+#if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BEOS__)
 #       define HAVE_DECLSPEC_DLL
 #endif
 
 /* only get special linkage if built as shared or platform is Cygwin */
-#if defined(Py_ENABLE_SHARED) || defined(__CYGWIN__)
+#if defined(Py_ENABLE_SHARED) && (defined(__CYGWIN__) || defined(__MINGW32__))
 #       if defined(HAVE_DECLSPEC_DLL)
 #               ifdef Py_BUILD_CORE
 #                       define PyAPI_FUNC(RTYPE) __declspec(dllexport) RTYPE
@@ -783,10 +796,12 @@ extern int fdatasync(int);
         /* Under Cygwin, auto-import functions to prevent compilation */
         /* failures similar to those described at the bottom of 4.1: */
         /* http://docs.python.org/extending/windows.html#a-cookbook-approach */
-#                       if !defined(__CYGWIN__)
+#                       if !defined(__CYGWIN__) && !defined(__MINGW32__)
 #                               define PyAPI_FUNC(RTYPE) __declspec(dllimport) RTYPE
-#                       endif /* !__CYGWIN__ */
-#                       define PyAPI_DATA(RTYPE) extern __declspec(dllimport) RTYPE
+#                       endif /* !__CYGWIN__ && !__MINGW32__ */
+#                       if !defined(__MINGW32__)
+#                         define PyAPI_DATA(RTYPE) extern __declspec(dllimport) RTYPE
+#                       endif
         /* module init functions outside the core must be exported */
 #                       if defined(__cplusplus)
 #                               define PyMODINIT_FUNC extern "C" __declspec(dllexport) void

@@ -220,12 +220,22 @@ COVERAGE_REPORT_OPTIONS=--no-branch-coverage --title "CPython lcov report"
 
 # === Definitions added by makesetup ===
 
+##########################################################################
+# Platform-dependent objects
+ifeq ($(MACHDEP),mingw)
+  MACHDEP_OBJS += PC/getpathp.o \
+                  PC/dl_nt.o
+  SYSLIBS      += -lversion -lshlwapi -lwsock32
+  MODULE_OBJS =
+else
+  MODULE_OBJS = Modules/getpath.o Modules/pwdmodule.o
+endif
+MODULE_OBJS += Modules/posixmodule.o
 
 ##########################################################################
 # Modules
-MODULE_OBJS=	\
+MODULE_OBJS+= \
 		Modules/config.o \
-		Modules/getpath.o \
 		Modules/main.o \
 		Modules/gcmodule.o
 
@@ -591,7 +601,7 @@ $(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK): \
 # for a shared core library; otherwise, this rule is a noop.
 $(DLLLIBRARY) libpython$(VERSION).dll.a: $(LIBRARY_OBJS)
 	if test -n "$(DLLLIBRARY)"; then \
-		$(LDSHARED) -Wl,--out-implib=$@ -o $(DLLLIBRARY) $^ \
+		$(LDSHARED) -Wl,--out-implib=libpython$(VERSION).dll.a -o $(DLLLIBRARY) $^ \
 			$(LIBS) $(MODLIBS) $(SYSLIBS) $(LDLAST); \
 	else true; \
 	fi
@@ -655,14 +665,24 @@ Modules/getpath.o: $(srcdir)/Modules/getpath.c Makefile
 		-DVPATH='"$(VPATH)"' \
 		-o $@ $(srcdir)/Modules/getpath.c
 
+PC/getpathp.o: $(srcdir)/PC/getpathp.c Makefile
+	$(CC) -c $(PY_CFLAGS) -DPYTHONPATH='L"$(PYTHONPATH)"' \
+               -o $@ $(srcdir)/PC/getpathp.c
+
 Modules/python.o: $(srcdir)/Modules/python.c
 	$(MAINCC) -c $(PY_CFLAGS) -o $@ $(srcdir)/Modules/python.c
 
 Modules/posixmodule.o: $(srcdir)/Modules/posixmodule.c $(srcdir)/Modules/posixmodule.h
+	$(CC) $(PY_CFLAGS) \
+                -c $(srcdir)/Modules/posixmodule.c \
+                -o Modules/posixmodule.o
 
 Modules/grpmodule.o: $(srcdir)/Modules/grpmodule.c $(srcdir)/Modules/posixmodule.h
 
 Modules/pwdmodule.o: $(srcdir)/Modules/pwdmodule.c $(srcdir)/Modules/posixmodule.h
+	$(CC) $(PY_CFLAGS) \
+                -c $(srcdir)/Modules/pwdmodule.c \
+                -o Modules/pwdmodule.o
 
 $(PGEN):	$(PGENOBJS)
 		$(CC) $(OPT) $(LDFLAGS) $(PGENOBJS) $(LIBS) -o $(PGEN)
