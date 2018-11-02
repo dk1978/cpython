@@ -8559,7 +8559,8 @@ then
 	  		*)    SO=.sl;;
 		esac
 		;;
-	CYGWIN*|MinGW*)   SO=.dll;;
+	CYGWIN*)   SO=.dll;;
+	MinGW*) SO=.pyd;;
 	*)	   SO=.so;;
 	esac
 else
