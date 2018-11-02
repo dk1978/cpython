@@ -28,7 +28,7 @@ const struct filedescr _PyImport_DynLoadFiletab[] = {
 /* Case insensitive string compare, to avoid any dependencies on particular
    C RTL implementations */
 
-static int strcasecmp (char *string1, char *string2)
+static int Py_strcasecmp (const char *string1, const char *string2)
 {
     int first, second;
 
@@ -257,7 +257,7 @@ dl_funcptr _PyImport_GetDynLoadFunc(const char *fqname, const char *shortname,
             import_python = GetPythonImport(hDLL);
 
             if (import_python &&
-                strcasecmp(buffer,import_python)) {
+                Py_strcasecmp(buffer,import_python)) {
                 PyOS_snprintf(buffer, sizeof(buffer),
                               "Module use of %.150s conflicts "
                               "with this version of Python.",

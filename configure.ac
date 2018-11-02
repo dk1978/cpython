@@ -25,7 +25,7 @@ AC_SUBST(PYTHON_FOR_REGEN)
 if test "$cross_compiling" = yes; then
     AC_MSG_CHECKING([for python interpreter for cross build])
     if test -z "$PYTHON_FOR_BUILD"; then
-        for interp in python$PACKAGE_VERSION python2 python $CROSSCOMPILING_PYTHON_FOR_BUILD; do
+        for interp in $CROSSCOMPILING_PYTHON_FOR_BUILD python$PACKAGE_VERSION python2 python; do
 	    which $interp >/dev/null 2>&1 || continue
 	    if $interp -c 'import sys;sys.exit(not (sys.version_info@<:@:2@:>@ >= (2,7) and sys.version_info@<:@0@:>@ < 3))'; then
 	        break
@@ -3094,6 +3094,7 @@ then
 	# Use dynload_next.c only on 10.2 and below, which don't have native dlopen()
 	Darwin/@<:@0156@:>@\..*) DYNLOADFILE="dynload_next.o";;
 	atheos*) DYNLOADFILE="dynload_atheos.o";;
+	MinGW*) DYNLOADFILE="dynload_win.o";;
 	*)
 	# use dynload_shlib.c and dlopen() if we have it; otherwise stub
 	# out any dynamic loading
