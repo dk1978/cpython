@@ -225,7 +225,6 @@ COVERAGE_REPORT_OPTIONS=--no-branch-coverage --title "CPython lcov report"
 ifeq ($(MACHDEP),mingw)
   MACHDEP_OBJS += PC/getpathp.o \
                   PC/dl_nt.o
-  SYSLIBS      += -lversion -lshlwapi -lwsock32
   MODULE_OBJS =
 else
   MODULE_OBJS = Modules/getpath.o Modules/pwdmodule.o
@@ -666,7 +665,7 @@ Modules/getpath.o: $(srcdir)/Modules/getpath.c Makefile
 		-o $@ $(srcdir)/Modules/getpath.c
 
 PC/getpathp.o: $(srcdir)/PC/getpathp.c Makefile
-	$(CC) -c $(PY_CFLAGS) -DPYTHONPATH='L"$(PYTHONPATH)"' \
+	$(CC) -c $(PY_CFLAGS) -DPYTHONPATH='"$(PYTHONPATH)"' \
                -o $@ $(srcdir)/PC/getpathp.c
 
 Modules/python.o: $(srcdir)/Modules/python.c

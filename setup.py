@@ -793,12 +793,12 @@ class PyBuildExt(build_ext):
             missing.append('readline')
 
         # crypt module.
-
-        if self.compiler.find_library_file(lib_dirs, 'crypt'):
-            libs = ['crypt']
-        else:
-            libs = []
-        exts.append( Extension('crypt', ['cryptmodule.c'], libraries=libs) )
+        if host_platform not in ['win32', 'mingw']:
+            if self.compiler.find_library_file(lib_dirs, 'crypt'):
+                libs = ['crypt']
+            else:
+                libs = []
+            exts.append( Extension('crypt', ['cryptmodule.c'], libraries=libs) )
 
         # CSV files
         exts.append( Extension('_csv', ['_csv.c']) )
@@ -1337,11 +1337,11 @@ class PyBuildExt(build_ext):
             missing.append('gdbm')
 
         # Unix-only modules
-        if host_platform not in ['win32']:
+        if host_platform not in ['win32', 'mingw']:
             # Steen Lumholt's termios module
             exts.append( Extension('termios', ['termios.c']) )
             # Jeremy Hylton's rlimit interface
-            if host_platform not in ['atheos']:
+            if host_platform not in ['atheos', 'mingw']:
                 exts.append( Extension('resource', ['resource.c']) )
             else:
                 missing.append('resource')
@@ -1556,7 +1556,7 @@ class PyBuildExt(build_ext):
         self.detect_ctypes(inc_dirs, lib_dirs)
 
         # Richard Oudkerk's multiprocessing module
-        if host_platform == 'win32':             # Windows
+        if host_platform == 'win32' or host_platform == 'mingw':             # Windows
             macros = dict()
             libraries = ['ws2_32']
 
@@ -1586,7 +1586,7 @@ class PyBuildExt(build_ext):
             macros = dict()
             libraries = ['rt']
 
-        if host_platform == 'win32':
+        if host_platform == 'win32' or host_platform == 'mingw':
             multiprocessing_srcs = [ '_multiprocessing/multiprocessing.c',
                                      '_multiprocessing/semaphore.c',
                                      '_multiprocessing/pipe_connection.c',
@@ -1605,6 +1605,7 @@ class PyBuildExt(build_ext):
         if sysconfig.get_config_var('WITH_THREAD'):
             exts.append ( Extension('_multiprocessing', multiprocessing_srcs,
                                     define_macros=macros.items(),
+                                    libraries=libraries,
                                     include_dirs=["Modules/_multiprocessing"]))
         else:
             missing.append('_multiprocessing')
