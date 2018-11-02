@@ -309,7 +309,7 @@ typedef int(* PPROC)(void);
 
 PyObject *_ctypes_callproc(PPROC pProc,
                     PyObject *arguments,
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
                     IUnknown *pIUnk,
                     GUID *iid,
 #endif

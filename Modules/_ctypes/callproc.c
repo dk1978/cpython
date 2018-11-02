@@ -742,7 +742,7 @@ ffi_type *_ctypes_get_ffi_type(PyObject *obj)
     dict = PyType_stgdict(obj);
     if (dict == NULL)
         return &ffi_type_sint;
-#if defined(MS_WIN32) && !defined(_WIN32_WCE)
+#if defined(MS_WIN32) && !defined(_WIN32_WCE) && !defined(__MINGW32__)
     /* This little trick works correctly with MSVC.
        It returns small structures in registers
     */
@@ -784,7 +784,7 @@ static int _call_function_pointer(int flags,
     int *space;
     ffi_cif cif;
     int cc;
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
     int delta;
 #ifndef DONT_USE_SEH
     DWORD dwExceptionCode = 0;
@@ -827,7 +827,7 @@ static int _call_function_pointer(int flags,
         space[0] = errno;
         errno = temp;
     }
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
     if (flags & FUNCFLAG_USE_LASTERROR) {
         int temp = space[1];
         space[1] = GetLastError();
@@ -839,7 +839,7 @@ static int _call_function_pointer(int flags,
         delta =
 #endif
                 ffi_call(&cif, (void *)pProc, resmem, avalues);
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
 #ifndef DONT_USE_SEH
     }
     __except (HandleException(GetExceptionInformation(),
@@ -863,7 +863,7 @@ static int _call_function_pointer(int flags,
         Py_BLOCK_THREADS
 #endif
     Py_XDECREF(error_object);
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
 #ifndef DONT_USE_SEH
     if (dwExceptionCode) {
         SetException(dwExceptionCode, &record);
@@ -997,7 +997,7 @@ error:
 }
 
 
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
 
 static PyObject *
 GetComError(HRESULT errcode, GUID *riid, IUnknown *pIunk)
@@ -1085,7 +1085,7 @@ GetComError(HRESULT errcode, GUID *riid, IUnknown *pIunk)
  */
 PyObject *_ctypes_callproc(PPROC pProc,
                     PyObject *argtuple,
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
                     IUnknown *pIunk,
                     GUID *iid,
 #endif
@@ -1105,7 +1105,7 @@ PyObject *_ctypes_callproc(PPROC pProc,
     PyObject *retval = NULL;
 
     n = argcount = PyTuple_GET_SIZE(argtuple);
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
     /* an optional COM object this pointer */
     if (pIunk)
         ++argcount;
@@ -1118,7 +1118,7 @@ PyObject *_ctypes_callproc(PPROC pProc,
     }
     memset(args, 0, sizeof(struct argument) * argcount);
     argtype_count = argtypes ? PyTuple_GET_SIZE(argtypes) : 0;
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
     if (pIunk) {
         args[0].ffi_type = &ffi_type_pointer;
         args[0].value.p = pIunk;
@@ -1205,7 +1205,7 @@ PyObject *_ctypes_callproc(PPROC pProc,
         resbuf = (char *)resbuf + sizeof(ffi_arg) - rtype->size;
 #endif
 
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
     if (iid && pIunk) {
         if (*(int *)resbuf & 0x80000000)
             retval = GetComError(*(HRESULT *)resbuf, iid, pIunk);
@@ -1374,7 +1374,7 @@ call_commethod(PyObject *self, PyObject *args)
 
     result =  _ctypes_callproc(lpVtbl[index],
                         arguments,
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
                         pIunk,
                         NULL,
 #endif
@@ -1497,7 +1497,7 @@ call_function(PyObject *self, PyObject *args)
 
     result =  _ctypes_callproc((PPROC)func,
                         arguments,
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
                         NULL,
                         NULL,
 #endif
@@ -1528,7 +1528,7 @@ call_cdeclfunction(PyObject *self, PyObject *args)
 
     result =  _ctypes_callproc((PPROC)func,
                         arguments,
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
                         NULL,
                         NULL,
 #endif

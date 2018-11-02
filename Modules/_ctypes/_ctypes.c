@@ -3987,7 +3987,7 @@ PyCFuncPtr_call(PyCFuncPtrObject *self, PyObject *inargs, PyObject *kwds)
     PyObject *result;
     PyObject *callargs;
     PyObject *errcheck;
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
     IUnknown *piunk = NULL;
 #endif
     void *pProc = NULL;
@@ -4006,7 +4006,7 @@ PyCFuncPtr_call(PyCFuncPtrObject *self, PyObject *inargs, PyObject *kwds)
 
 
     pProc = *(void **)self->b_ptr;
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
     if (self->index) {
         /* It's a COM method */
         CDataObject *this;
@@ -4075,7 +4075,7 @@ PyCFuncPtr_call(PyCFuncPtrObject *self, PyObject *inargs, PyObject *kwds)
 
     result = _ctypes_callproc(pProc,
                        callargs,
-#ifdef MS_WIN32
+#if defined(MS_WIN32) && !defined(__MINGW32__)
                        piunk,
                        self->iid,
 #endif
