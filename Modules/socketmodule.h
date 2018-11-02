@@ -21,7 +21,11 @@
  * I use SIO_GET_MULTICAST_FILTER to detect a decent SDK.
  */
 # ifdef SIO_GET_MULTICAST_FILTER
-#  include <MSTcpIP.h> /* for SIO_RCVALL */
+#  ifdef HAVE_WS2TCPIP_H
+#    include <ws2tcpip.h> /* for SIO_RCVALL */
+#  else 
+#    include <MSTcpIP.h> /* for SIO_RCVALL */
+#  endif
 #  define HAVE_ADDRINFO
 #  define HAVE_SOCKADDR_STORAGE
 #  define HAVE_GETADDRINFO

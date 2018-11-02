@@ -14561,7 +14561,7 @@ fi
 ac_save_cppflags="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS -I/usr/include/ncursesw"
 
-for ac_header in curses.h ncurses.h
+for ac_header in curses.h ncurses.h ncurses/ncurses.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -15234,12 +15234,26 @@ $as_echo "#define PY_FORMAT_SIZE_T \"z\"" >>confdefs.h
 
 fi
 
+ac_fn_c_check_header_mongrel "$LINENO" "ws2tcpip.h" "ac_cv_header_ws2tcpip_h" "$ac_includes_default"
+if test "x$ac_cv_header_ws2tcpip_h" = xyes; then :
+
+
+$as_echo "#define HAVE_WS2TCPIP_H 1" >>confdefs.h
+
+
+fi
+
+
+
 ac_fn_c_check_type "$LINENO" "socklen_t" "ac_cv_type_socklen_t" "
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_WS2TCPIP_H
+#include <ws2tcpip.h>
 #endif
 
 "

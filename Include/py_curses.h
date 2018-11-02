@@ -49,7 +49,11 @@
 #ifdef HAVE_NCURSES_H
 #include <ncurses.h>
 #else
-#include <curses.h>
+#  ifdef HAVE_NCURSES_NCURSES_H
+#    include <ncurses/ncurses.h>
+#  else
+#    include <curses.h>
+#  endif
 #endif
 
 #ifdef HAVE_NCURSES_H

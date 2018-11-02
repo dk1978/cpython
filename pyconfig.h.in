@@ -514,6 +514,9 @@
 /* Define to 1 if you have the <ncurses.h> header file. */
 #undef HAVE_NCURSES_H
 
+/* Define to 1 if you have the <ncurses/ncurses.h> header file. */
+#undef HAVE_NCURSES_NCURSES_H
+
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_NDIR_H
 
@@ -947,6 +950,9 @@
 /* Define if tzset() actually switches the local timezone in a meaningful way.
    */
 #undef HAVE_WORKING_TZSET
+
+/* Define if the compiler provides ws2tcpip.h header file. */
+#undef HAVE_WS2TCPIP_H
 
 /* Define if the zlib library has inflateCopy */
 #undef HAVE_ZLIB_COPY

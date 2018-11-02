@@ -447,9 +447,10 @@ class PyBuildExt(build_ext):
                                 if '/gcc/' not in d:
                                     add_dir_to_list(self.compiler.library_dirs,
                                                     d)
-                        elif is_gcc and in_incdirs and '/gcc/' not in line:
-                            add_dir_to_list(self.compiler.include_dirs,
-                                            line.strip())
+                        elif is_gcc and in_incdirs:
+                            path = os.path.abspath(line.strip())
+                            if '/gcc/' not in path:
+                                add_dir_to_list(self.compiler.include_dirs, path)
         finally:
             os.unlink(tmpfile)
 
@@ -460,6 +461,7 @@ class PyBuildExt(build_ext):
             add_dir_to_list(self.compiler.include_dirs, '/usr/local/include')
         if cross_compiling:
             self.add_gcc_paths()
+
         self.add_multiarch_paths()
 
         # Add paths specified in the environment variables LDFLAGS and
@@ -562,7 +564,6 @@ class PyBuildExt(build_ext):
             for item in cflags.split():
                 if item.startswith('-I'):
                     inc_dirs.append(item[2:])
-
             for item in ldflags.split():
                 if item.startswith('-L'):
                     lib_dirs.append(item[2:])
@@ -749,6 +750,8 @@ class PyBuildExt(build_ext):
             curses_library = 'ncursesw'
         elif self.compiler.find_library_file(lib_dirs, 'ncurses'):
             curses_library = 'ncurses'
+        elif self.compiler.find_library_file(lib_dirs, 'ncurses.dll'):
+            curses_library = 'ncurses.dll'
         elif self.compiler.find_library_file(lib_dirs, 'curses'):
             curses_library = 'curses'
 
@@ -824,13 +827,16 @@ class PyBuildExt(build_ext):
                                      ['/usr/local/ssl/lib',
                                       '/usr/contrib/ssl/lib/'
                                      ] )
-
+        ssl_libraries = ['ssl', 'crypto']
+        if host_platform == 'mingw':
+            ssl_libraries.append('ws2_32')
+        
         if (ssl_incs is not None and
             ssl_libs is not None):
             exts.append( Extension('_ssl', ['_ssl.c'],
                                    include_dirs = ssl_incs,
                                    library_dirs = ssl_libs,
-                                   libraries = ['ssl', 'crypto'],
+                                   libraries = ssl_libraries,
                                    depends = ['socketmodule.h']), )
         else:
             missing.append('_ssl')
@@ -1420,13 +1426,17 @@ class PyBuildExt(build_ext):
                     version = line.split()[2]
                     break
             if version >= version_req:
-                if (self.compiler.find_library_file(lib_dirs, 'z')):
+                if host_platform == 'mingw':
+                    library_name = 'z.dll'
+                else:
+                    library_name = 'z'
+                if (self.compiler.find_library_file(lib_dirs, library_name)):
                     if host_platform == "darwin":
                         zlib_extra_link_args = ('-Wl,-search_paths_first',)
                     else:
                         zlib_extra_link_args = ()
                     exts.append( Extension('zlib', ['zlibmodule.c'],
-                                           libraries = ['z'],
+                                           libraries = [library_name],
                                            extra_link_args = zlib_extra_link_args))
                     have_zlib = True
                 else:

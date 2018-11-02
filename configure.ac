@@ -4533,7 +4533,7 @@ fi
 ac_save_cppflags="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS -I/usr/include/ncursesw"
 
-AC_CHECK_HEADERS(curses.h ncurses.h)
+AC_CHECK_HEADERS(curses.h ncurses.h ncurses/ncurses.h)
 
 # On Solaris, term.h requires curses.h
 AC_CHECK_HEADERS(term.h,,,[
@@ -4837,6 +4837,11 @@ if test "$ac_cv_have_size_t_format" != no ; then
   [Define to printf format modifier for Py_ssize_t])
 fi
 
+AC_CHECK_HEADER(ws2tcpip.h, [
+  AC_DEFINE(HAVE_WS2TCPIP_H, 1,
+  [Define if the compiler provides ws2tcpip.h header file.])
+])
+
 AC_CHECK_TYPE(socklen_t,,
   AC_DEFINE(socklen_t,int,
             [Define to `int' if <sys/socket.h> does not define.]),[
@@ -4845,6 +4850,9 @@ AC_CHECK_TYPE(socklen_t,,
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_WS2TCPIP_H
+#include <ws2tcpip.h>
 #endif
 ])
 
