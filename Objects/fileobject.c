@@ -11,7 +11,9 @@
 #ifdef MS_WINDOWS
 #define fileno _fileno
 /* can simulate truncate with Win32 API functions; see file_truncate */
-#define HAVE_FTRUNCATE
+#  if !defined(__MINGW32__)
+#    define HAVE_FTRUNCATE
+#  endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif

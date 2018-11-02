@@ -922,7 +922,16 @@ typedef struct fd_set {
     !defined(RISCOS)
 #define Py_GCC_ATTRIBUTE(x)
 #else
-#define Py_GCC_ATTRIBUTE(x) __attribute__(x)
+/* The __attribute__ decoration was only used for "format".
+ * This caused tons of unnecessary warnings on MinGW, since
+ * the Python lib does not actually use printf and friends, but does
+ * the formatting itself.
+ */
+#  if defined(__MINGW32__)
+#    define Py_GCC_ATTRIBUTE(x)
+#  else
+#    define Py_GCC_ATTRIBUTE(x) __attribute__(x)
+#  endif
 #endif
 
 /*

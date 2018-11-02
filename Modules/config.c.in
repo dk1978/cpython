@@ -22,10 +22,10 @@ extern "C" {
 #endif
 
 #if defined(__MINGW32__)
-extern PyObject* initnt(void);
+extern void initnt(void);
 #else
-extern PyObject* initpwd(void);
-extern PyObject* initposix(void);
+extern void initpwd(void);
+extern void initposix(void);
 #endif
 
 /* -- ADDMODULE MARKER 1 -- */
