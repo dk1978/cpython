@@ -1035,7 +1035,7 @@ static int
 floatsleep(double secs)
 {
 /* XXX Should test for MS_WINDOWS first! */
-#if defined(HAVE_SELECT) && !defined(__BEOS__) && !defined(__EMX__)
+#if defined(HAVE_SELECT) && !defined(__BEOS__) && !defined(__EMX__) && !defined(MS_WINDOWS)
     struct timeval t;
     double frac;
     frac = fmod(secs, 1.0);
